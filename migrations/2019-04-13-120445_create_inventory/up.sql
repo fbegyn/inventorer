@@ -2,9 +2,34 @@
 CREATE TABLE items (
   id INTEGER PRIMARY KEY NOT NULL,
   name VARCHAR NOT NULL,
-  location VARCHAR NOT NULL,
-  team VARCHAR NOT NULL DEFAULT 'default',
+  location_id INTEGER NOT NULL,
+  team_id INTEGER,
   amount INTEGER,
-  barcode INTEGER,
+  barcode VARCHAR(15),
   for_rent BOOLEAN NOT NULL DEFAULT 'f'
+);
+
+CREATE TABLE locations (
+  id INTEGER PRIMARY KEY NOT NULL,
+  name VARCHAR(50) NOT NULL,
+  warehouse_id INTEGER NOT NULL
+);
+
+CREATE TABLE teams (
+  id INTEGER PRIMARY KEY NOT NULL,
+  name VARCHAR(50) NOT NULL,
+  teamlead_id INTEGER
+);
+
+CREATE TABLE users (
+  id INTEGER PRIMARY KEY NOT NULL,
+  name VARCHAR(50) NOT NULL,
+  team_id INTEGER
+);
+
+CREATE TABLE warehouses (
+  id INTEGER PRIMARY KEY NOT NULL,
+  name VARCHAR(50) NOT NULL,
+  address VARCHAR,
+  capacity INTEGER DEFAULT NULL
 )
