@@ -5,6 +5,12 @@ use std::io;
 use self::inventorer::*;
 
 fn main() {
+    loop {
+        insert_item();
+    }
+}
+
+fn insert_item() {
     let connection = establish_connection();
 
     println!("Item:");
