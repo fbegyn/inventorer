@@ -6,7 +6,7 @@ extern crate log;
 extern crate env_logger;
 
 
-use inventorer::{warehouse, location, item};
+use inventorer::{warehouse, location, item, team, user};
 use log::{info};
 use actix_web::{server, App, http};
 
@@ -37,6 +37,18 @@ fn main() {
             .resource("/api/item/create", |r| r.method(http::Method::POST).with(item::handle_item_create))
             .resource("/api/item/{id}/update", |r| r.method(http::Method::PUT).f(item::handle_item_update))
             .resource("/api/item/{id}/delete", |r| r.method(http::Method::DELETE).f(item::handle_item_delete))
+
+            // teams api
+            .resource("/api/team/list", |r| r.method(http::Method::GET).f(team::handle_team_list))
+            .resource("/api/team/create", |r| r.method(http::Method::POST).with(team::handle_team_create))
+            .resource("/api/team/{id}/update", |r| r.method(http::Method::PUT).f(team::handle_team_update))
+            .resource("/api/team/{id}/delete", |r| r.method(http::Method::DELETE).f(team::handle_team_delete))
+
+            // user api
+            .resource("/api/user/list", |r| r.method(http::Method::GET).f(user::handle_user_list))
+            .resource("/api/user/create", |r| r.method(http::Method::POST).with(user::handle_user_create))
+            .resource("/api/user/{id}/update", |r| r.method(http::Method::PUT).f(user::handle_user_update))
+            .resource("/api/user/{id}/delete", |r| r.method(http::Method::DELETE).f(user::handle_user_delete))
         })
         .bind("127.0.0.1:8080")
         .expect("cannot bind to 8080")
