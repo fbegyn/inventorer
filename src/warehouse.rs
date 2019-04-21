@@ -3,27 +3,40 @@ extern crate serde;
 extern crate diesel;
 
 use diesel::prelude::*;
+use super::schema::{warehouses};
 use serde::{Serialize, Deserialize};
 use actix_web::{HttpRequest, Json, Result};
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Queryable, Debug)]
 pub struct Warehouse {
-    id: Option<i32>,
-    name: String,
-    address: Option<String>,
-    capacity: Option<i32>,
+    pub id: i32,
+    pub name: String,
+    pub address: Option<String>,
+    pub capacity: Option<i32>
+}
+#[derive(Deserialize, Insertable, Debug)]
+#[table_name="warehouses"]
+pub struct NewWarehouse {
+    pub name: String,
+    pub address: Option<String>,
+    pub capacity: Option<i32>,
+}
+
+fn insert_warehouse(conn: &SqliteConnection, name: &String, address: &Option<String>, capacity: Option<i32>) -> usize {
+    let new_warehouse = NewWarehouse{ name: name.clone(), address: address.clone(), capacity};
+    diesel::insert_into(warehouses::table)
+        .values(&new_warehouse)
+        .execute(conn)
+        .expect("Error saving object")
 }
 
 // Fetches all warehouses
 pub fn get_warehouses() -> Vec<Warehouse> {
     use super::schema::warehouses::dsl::*;
     let conn = super::establish_connection();
-    let results = warehouses
-        .load::<super::models::Warehouse>(&conn)
-        .expect("error fetching warehouses");
-    results.into_iter()
-        .map(|w| Warehouse{id: Some(w.id), name: w.name, address: w.address, capacity: w.capacity})
-        .collect()
+    warehouses
+        .load::<Warehouse>(&conn)
+        .expect("error fetching warehouses")
 }
 
 pub fn handle_warehouse_list(_req: &HttpRequest) -> Result<Json<Vec<Warehouse>>> {
@@ -31,9 +44,9 @@ pub fn handle_warehouse_list(_req: &HttpRequest) -> Result<Json<Vec<Warehouse>>>
     Ok(Json(warehouses))
 }
 
-pub fn handle_warehouse_create(json: Json<Warehouse>) -> Result<String> {
+pub fn handle_warehouse_create(json: Json<NewWarehouse>) -> Result<String> {
     let conn = super::establish_connection();
-    super::create_warehouse(&conn, &(json.name), json.address.as_ref().map(|x| &**x), json.capacity);
+    insert_warehouse(&conn, &(json.name), &(json.address), json.capacity);
     Ok(format!("{:?}", json))
 }
 
@@ -50,7 +63,7 @@ pub fn handle_warehouse_delete(req: &HttpRequest) -> Result<String> {
     let delete = diesel::delete(warehouses.find(item_id))
         .execute(&conn)
         .expect("troubles finding warehouses");
-    Ok(format!("deleted {} items", delete))
+    Ok(format!("deleted {} warehouses", delete))
 }
 
 pub fn handle_warehouse_location(_req: &HttpRequest) -> Result<Json<Vec<Warehouse>>> {
@@ -60,28 +73,18 @@ pub fn handle_warehouse_location(_req: &HttpRequest) -> Result<Json<Vec<Warehous
 
 pub fn handle_warehouse_inventory(_req: &HttpRequest) -> Result<Json<Vec<Warehouse>>> {
     use super::schema::warehouses::dsl::*;
-    use super::models;
     let conn = super::establish_connection();
     let results = warehouses
-        .load::<models::Warehouse>(&conn)
+        .load::<Warehouse>(&conn)
         .expect("error fetching warehouses");
-    let ret: Vec<Warehouse> = results
-        .into_iter()
-        .map(|w| Warehouse{id: Some(w.id), name: w.name, address: w.address, capacity: w.capacity})
-        .collect();
-    Ok(Json(ret))
+    Ok(Json(results))
 }
 
 pub fn handle_warehouse_location_inventory(_req: &HttpRequest) -> Result<Json<Vec<Warehouse>>> {
     use super::schema::warehouses::dsl::*;
-    use super::models;
     let conn = super::establish_connection();
     let results = warehouses
-        .load::<models::Warehouse>(&conn)
+        .load::<Warehouse>(&conn)
         .expect("error fetching warehouses");
-    let ret: Vec<Warehouse> = results
-        .into_iter()
-        .map(|w| Warehouse{id: Some(w.id), name: w.name, address: w.address, capacity: w.capacity})
-        .collect();
-    Ok(Json(ret))
+    Ok(Json(results))
 }
