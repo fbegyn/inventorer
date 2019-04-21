@@ -4,6 +4,9 @@ extern crate dotenv;
 
 pub mod schema;
 pub mod models;
+pub mod warehouse;
+pub mod location;
+pub mod item;
 
 use diesel::prelude::*;
 use diesel::sqlite::SqliteConnection;
@@ -11,7 +14,7 @@ use dotenv::dotenv;
 use std::env;
 use self::models::{NewItem, NewLocation, NewTeam, NewUser, NewWarehouse};
 
-pub fn establish_connection() -> SqliteConnection {
+fn establish_connection() -> SqliteConnection {
     dotenv().ok();
 
     let database_url = env::var("DATABASE_URL")
@@ -20,8 +23,7 @@ pub fn establish_connection() -> SqliteConnection {
         .expect(&format!("Error connecting to {}", database_url))
 }
 
-pub fn create_item<'a>(conn: &SqliteConnection, name: &'a str, location_id: &'a i32, team_id: Option<&'a i32>,
-                       amount: Option<&'a i32>, barcode: Option<&'a str>) -> usize {
+fn create_item<'a>(conn: &SqliteConnection, name: &'a str, location_id: i32, team_id: Option<i32>, amount: Option<i32>, barcode: Option<&'a str>) -> usize {
     let new_item = NewItem{ name, location_id, team_id, amount, barcode};
     diesel::insert_into(schema::items::table)
         .values(&new_item)
@@ -29,7 +31,7 @@ pub fn create_item<'a>(conn: &SqliteConnection, name: &'a str, location_id: &'a 
         .expect("Error saving object")
 }
 
-pub fn create_location<'a>(conn: &SqliteConnection, name: &'a str, warehouse_id: &'a i32) -> usize {
+fn create_location<'a>(conn: &SqliteConnection, name: &'a str, warehouse_id: Option<i32>) -> usize {
     let new_location = NewLocation{ name, warehouse_id};
     diesel::insert_into(schema::locations::table)
         .values(&new_location)
@@ -37,7 +39,7 @@ pub fn create_location<'a>(conn: &SqliteConnection, name: &'a str, warehouse_id:
         .expect("Error saving object")
 }
 
-pub fn create_team<'a>(conn: &SqliteConnection, name: &'a str, teamlead_id: Option<&'a i32>) -> usize {
+fn create_team<'a>(conn: &SqliteConnection, name: &'a str, teamlead_id: Option<i32>) -> usize {
     let new_team = NewTeam{ name, teamlead_id};
     diesel::insert_into(schema::teams::table)
         .values(&new_team)
@@ -45,7 +47,7 @@ pub fn create_team<'a>(conn: &SqliteConnection, name: &'a str, teamlead_id: Opti
         .expect("Error saving object")
 }
 
-pub fn create_user<'a>(conn: &SqliteConnection, name: &'a str, team_id: Option<&'a i32>) -> usize {
+fn create_user<'a>(conn: &SqliteConnection, name: &'a str, team_id: Option<i32>) -> usize {
     let new_user = NewUser{ name, team_id};
     diesel::insert_into(schema::users::table)
         .values(&new_user)
@@ -53,8 +55,7 @@ pub fn create_user<'a>(conn: &SqliteConnection, name: &'a str, team_id: Option<&
         .expect("Error saving object")
 }
 
-pub fn create_warehouse<'a>(conn: &SqliteConnection, name: &'a str, address: Option<&'a str>,
-                            capacity: Option<&'a str>) -> usize {
+fn create_warehouse<'a>(conn: &SqliteConnection, name: &'a str, address: Option<&'a str>, capacity: Option<i32>) -> usize {
     let new_warehouse = NewWarehouse{ name, address, capacity};
     diesel::insert_into(schema::warehouses::table)
         .values(&new_warehouse)

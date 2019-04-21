@@ -31,6 +31,5 @@ CREATE TABLE warehouses (
   id INTEGER PRIMARY KEY NOT NULL,
   name VARCHAR(50) NOT NULL,
   address VARCHAR,
-  capacity VARCHAR(50)
-);
-
+  capacity INTEGER DEFAULT NULL
+)

@@ -14,7 +14,7 @@ table! {
     locations (id) {
         id -> Integer,
         name -> Text,
-        warehouse_id -> Integer,
+        warehouse_id -> Nullable<Integer>,
     }
 }
 
@@ -39,7 +39,7 @@ table! {
         id -> Integer,
         name -> Text,
         address -> Nullable<Text>,
-        capacity -> Nullable<Text>,
+        capacity -> Nullable<Integer>,
     }
 }
 
