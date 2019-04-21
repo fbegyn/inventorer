@@ -4,7 +4,7 @@ CREATE TABLE items (
   name VARCHAR NOT NULL,
   location_id INTEGER NOT NULL,
   team_id INTEGER,
-  amount INTEGER DEFAULT 0,
+  amount INTEGER,
   barcode VARCHAR(15),
   for_rent BOOLEAN NOT NULL DEFAULT 'f'
 );
